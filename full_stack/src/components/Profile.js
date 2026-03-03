@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiUrl } from '../config/api';
 import { useAuth } from './AuthContext';
 import './Profile.css';
 
 const Profile = () => {
     const { user, token } = useAuth();
+    const navigate = useNavigate();
     const [profile, setProfile] = useState({
         firstName: '', lastName: '', email: '', phone: '',
         address: '', city: '', state: '', postalCode: '', country: ''
@@ -28,7 +30,6 @@ const Profile = () => {
         country: data?.country || ''
     });
 
-    // Fetch user info on load
     useEffect(() => {
         const fetchProfile = async () => {
             setLoading(true);
@@ -45,21 +46,16 @@ const Profile = () => {
             setLoading(false);
         };
         if (userId) fetchProfile();
-        else {
-            setError('Login required.');
-            setLoading(false);
-        }
+        else { setError('Login required.'); setLoading(false); }
     }, [userId, token]);
 
-    const handleChange = e => {
+    const handleChange = (e) => {
         setProfile({ ...profile, [e.target.name]: e.target.value });
-        setMessage('');
-        setError('');
+        setMessage(''); setError('');
     };
 
     const handleUpdate = async () => {
-        setMessage('');
-        setError('');
+        setMessage(''); setError('');
         try {
             const res = await fetch(apiUrl(`/api/users/${userId}`), {
                 method: "PUT",
@@ -81,64 +77,58 @@ const Profile = () => {
         }
     };
 
-    if (loading) return <div>Loading profile...</div>;
-    if (error) return <div className="profile-error">{error}</div>;
+    if (loading) return <div className="cafe-page-state" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#faf6f1', color: '#8a7968' }}>Loading profile...</div>;
+    if (error && !profile.email) return <div className="profile-error">{error}</div>;
+
+    const fields = [
+        { name: 'firstName', label: 'First Name', editable: true },
+        { name: 'lastName', label: 'Last Name', editable: true },
+        { name: 'email', label: 'Email', editable: false },
+        { name: 'phone', label: 'Phone', editable: true },
+        { name: 'address', label: 'Address', editable: true },
+        { name: 'city', label: 'City', editable: true },
+        { name: 'state', label: 'State', editable: true },
+        { name: 'postalCode', label: 'Postal Code', editable: true },
+        { name: 'country', label: 'Country', editable: true },
+    ];
 
     return (
         <div className="profile-container">
             <h2 className="profile-title">Your Profile</h2>
             {message && <div className="profile-message">{message}</div>}
+            {error && profile.email && <div className="profile-error" style={{ margin: '0 0 16px', maxWidth: '100%' }}>{error}</div>}
+
             <form onSubmit={(e) => e.preventDefault()}>
-                <div className="profile-form-row">
-                    <label>First Name: </label>
-                    <input name="firstName" value={profile.firstName || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>Last Name: </label>
-                    <input name="lastName" value={profile.lastName || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>Email: </label>
-                    <input name="email" value={profile.email || ''} readOnly />
-                </div>
-                <div className="profile-form-row">
-                    <label>Phone: </label>
-                    <input name="phone" value={profile.phone || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>Address: </label>
-                    <input name="address" value={profile.address || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>City: </label>
-                    <input name="city" value={profile.city || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>State: </label>
-                    <input name="state" value={profile.state || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>Postal Code: </label>
-                    <input name="postalCode" value={profile.postalCode || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
-                <div className="profile-form-row">
-                    <label>Country: </label>
-                    <input name="country" value={profile.country || ''} onChange={handleChange} readOnly={!editMode} />
-                </div>
+                {fields.map((field) => (
+                    <div className="profile-form-row" key={field.name}>
+                        <label>{field.label}</label>
+                        <input
+                            name={field.name}
+                            value={profile[field.name] || ''}
+                            onChange={handleChange}
+                            readOnly={!field.editable || !editMode}
+                        />
+                    </div>
+                ))}
+
                 {!editMode ? (
                     <div className="profile-actions">
-                        <button className="profile-btn" type="button" onClick={() => setEditMode(true)}>Edit Profile</button>
+                        <button className="profile-btn" type="button" onClick={() => setEditMode(true)}>✏️ Edit Profile</button>
                     </div>
                 ) : (
                     <div className="profile-actions">
-                        <button className="profile-btn" type="button" onClick={handleUpdate}>Update Profile</button>
+                        <button className="profile-btn" type="button" onClick={handleUpdate}>✓ Save Changes</button>
                         <button className="profile-btn" type="button" onClick={() => { setEditMode(false); setMessage(''); setError(''); }}>Cancel</button>
                     </div>
                 )}
             </form>
+
             <div className="profile-links">
-                <a href="/">Go to Home Page</a>
-                <a href="/change-password">Change Password</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>🏠 Home Page</a>
+                <a href="/change-password" onClick={(e) => { e.preventDefault(); navigate('/change-password'); }}>🔒 Change Password</a>
+                {user?.role === 'CAFE_OWNER' && (
+                    <a href="/owner/dashboard" onClick={(e) => { e.preventDefault(); navigate('/owner/dashboard'); }}>☕ Owner Dashboard</a>
+                )}
             </div>
         </div>
     );

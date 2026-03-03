@@ -25,44 +25,28 @@ const CafePage = () => {
             setCheckoutMessage('');
             try {
                 const response = await fetch(apiUrl(`/api/cafes/${cafeId}`));
-                if (!response.ok) {
-                    throw new Error('Unable to load cafe');
-                }
+                if (!response.ok) throw new Error('Unable to load cafe');
                 const data = await response.json();
-                if (active) {
-                    setDetails(data);
-                }
+                if (active) setDetails(data);
             } catch (e) {
-                if (active) {
-                    setError('Cafe not found or unavailable.');
-                }
+                if (active) setError('Cafe not found or unavailable.');
             } finally {
-                if (active) {
-                    setLoading(false);
-                }
+                if (active) setLoading(false);
             }
         };
         loadCafe();
-        return () => {
-            active = false;
-        };
+        return () => { active = false; };
     }, [cafeId]);
 
     const categories = useMemo(() => {
-        if (!details?.menu) {
-            return ['All'];
-        }
+        if (!details?.menu) return ['All'];
         const set = new Set(details.menu.map((item) => item.category || 'Uncategorized'));
         return ['All', ...set];
     }, [details]);
 
     const filteredMenu = useMemo(() => {
-        if (!details?.menu) {
-            return [];
-        }
-        if (selectedCategory === 'All') {
-            return details.menu;
-        }
+        if (!details?.menu) return [];
+        if (selectedCategory === 'All') return details.menu;
         return details.menu.filter((item) => (item.category || 'Uncategorized') === selectedCategory);
     }, [details, selectedCategory]);
 
@@ -73,9 +57,7 @@ const CafePage = () => {
         setCheckoutMessage('');
         setCartItems((prev) => {
             const existing = prev.find((x) => x.id === menuItem.id);
-            if (existing) {
-                return prev.map((x) => x.id === menuItem.id ? { ...x, quantity: x.quantity + 1 } : x);
-            }
+            if (existing) return prev.map((x) => x.id === menuItem.id ? { ...x, quantity: x.quantity + 1 } : x);
             return [...prev, { ...menuItem, quantity: 1 }];
         });
     };
@@ -109,19 +91,15 @@ const CafePage = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) {
-                throw new Error('Order failed');
-            }
-            setCheckoutMessage(`Order placed for table ${payload.tableNumber}.`);
+            if (!response.ok) throw new Error('Order failed');
+            setCheckoutMessage(`✅ Order placed for Table ${payload.tableNumber}!`);
             setCartItems([]);
         } catch (e) {
             setCheckoutMessage('Could not place order right now.');
         }
     };
 
-    if (loading) {
-        return <div className="cafe-page-state">Loading cafe details...</div>;
-    }
+    if (loading) return <div className="cafe-page-state">☕ Loading cafe details...</div>;
     if (error || !details) {
         return (
             <div className="cafe-page-state">
@@ -137,35 +115,43 @@ const CafePage = () => {
                 <div>
                     <button type="button" className="link-btn" onClick={() => navigate('/')}>Back to All Cafes</button>
                     <h1>{details.cafe?.name}</h1>
-                    <p>{details.cafe?.city}, {details.cafe?.state} | {details.cafe?.openHours || 'Hours not updated'}</p>
+                    <p>📍 {details.cafe?.city}, {details.cafe?.state} &nbsp;|&nbsp; 🕐 {details.cafe?.openHours || 'Hours not updated'}</p>
                 </div>
-                <div className="staff-pill">{details.waiterCount} Waiters | {details.chefCount} Chefs</div>
+                <div className="staff-pill">👥 {details.waiterCount || 0} Waiters &bull; {details.chefCount || 0} Chefs</div>
             </header>
+
             <div className="cafe-cover">
                 <img src={coverImage} alt={`${details.cafe?.name} cover`} />
             </div>
 
             <section className="cafe-layout">
+                {/* TABLE BOOKING */}
                 <article className="panel">
-                    <h3>Table Booking</h3>
-                    <div className="table-grid">
-                        {(details.tables || []).map((table) => (
-                            <button
-                                type="button"
-                                key={table.id}
-                                disabled={!table.available}
-                                className={`table-pill ${!table.available ? 'off' : ''} ${selectedTableId === table.id ? 'on' : ''}`}
-                                onClick={() => table.available && setSelectedTableId(table.id)}
-                            >
-                                <span>Table {table.tableNumber}</span>
-                                <small>{table.category || 'REGULAR'} | {table.capacity} seats</small>
-                            </button>
-                        ))}
-                    </div>
+                    <h3>🪑 Select Table</h3>
+                    {(details.tables || []).length === 0 ? (
+                        <p className="muted">No tables available.</p>
+                    ) : (
+                        <div className="table-grid">
+                            {(details.tables || []).map((table) => (
+                                <button
+                                    type="button"
+                                    key={table.id}
+                                    disabled={!table.available}
+                                    className={`table-pill ${!table.available ? 'off' : ''} ${selectedTableId === table.id ? 'on' : ''}`}
+                                    onClick={() => table.available && setSelectedTableId(table.id)}
+                                >
+                                    <span>T-{table.tableNumber}</span>
+                                    <small>{table.category || 'Regular'}</small>
+                                    <small>{table.capacity} seats</small>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </article>
 
+                {/* MENU */}
                 <article className="panel">
-                    <h3>Menu</h3>
+                    <h3>🍽️ Menu</h3>
                     <div className="chips">
                         {categories.map((category) => (
                             <button
@@ -178,38 +164,47 @@ const CafePage = () => {
                             </button>
                         ))}
                     </div>
-                    <div className="menu-list">
-                        {filteredMenu.map((item) => (
-                            <div key={item.id} className="menu-item">
-                                <img src={item.imageUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=220'} alt={item.name} />
-                                <div>
-                                    <p className="type">{item.category}</p>
-                                    <h4>{item.name}</h4>
-                                    <p>{item.description}</p>
-                                    <div className="item-row">
-                                        <strong>Rs. {item.price}</strong>
-                                        <button type="button" onClick={() => addToCart(item)}>Add</button>
+                    {filteredMenu.length === 0 ? (
+                        <p className="muted">No items in this category.</p>
+                    ) : (
+                        <div className="menu-list">
+                            {filteredMenu.map((item) => (
+                                <div key={item.id} className="menu-item">
+                                    {item.imageUrl ? (
+                                        <img src={item.imageUrl} alt={item.name} />
+                                    ) : (
+                                        <div style={{ width: 90, height: 90, background: '#f5ede4', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5a5', fontSize: 30 }}>🖼️</div>
+                                    )}
+                                    <div>
+                                        <p className="type">{item.category}</p>
+                                        <h4>{item.name}</h4>
+                                        <p>{item.description}</p>
+                                        <div className="item-row">
+                                            <strong>₹{item.price}</strong>
+                                            <button type="button" onClick={() => addToCart(item)}>+ Add</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </article>
 
+                {/* ORDER CART */}
                 <article className="panel">
-                    <h3>Your Order</h3>
+                    <h3>🛒 Your Order {cartItems.length > 0 && `(${cartItems.reduce((s, i) => s + i.quantity, 0)})`}</h3>
                     <div className="order-list">
                         {cartItems.length === 0 ? (
-                            <p className="muted">No items selected.</p>
+                            <p className="muted">No items added yet.<br />Browse the menu and tap "+ Add"</p>
                         ) : (
                             cartItems.map((item) => (
                                 <div className="order-row" key={item.id}>
                                     <div>
                                         <h4>{item.name}</h4>
-                                        <small>Rs. {item.price}</small>
+                                        <small>₹{item.price} each</small>
                                     </div>
                                     <div className="qty">
-                                        <button type="button" onClick={() => updateQty(item.id, -1)}>-</button>
+                                        <button type="button" onClick={() => updateQty(item.id, -1)}>−</button>
                                         <span>{item.quantity}</span>
                                         <button type="button" onClick={() => updateQty(item.id, 1)}>+</button>
                                     </div>
@@ -218,8 +213,8 @@ const CafePage = () => {
                         )}
                     </div>
                     <div className="checkout">
-                        <p>Total: <strong>Rs. {cartTotal}</strong></p>
-                        <button type="button" onClick={placeOrder}>Place Order</button>
+                        <p>Total: <strong>₹{cartTotal}</strong></p>
+                        <button type="button" onClick={placeOrder}>Place Order →</button>
                         {checkoutMessage && <small>{checkoutMessage}</small>}
                     </div>
                 </article>
@@ -229,4 +224,3 @@ const CafePage = () => {
 };
 
 export default CafePage;
-

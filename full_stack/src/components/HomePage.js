@@ -19,34 +19,21 @@ const HomePage = () => {
             setError('');
             try {
                 const response = await fetch(apiUrl('/api/cafes'));
-                if (!response.ok) {
-                    throw new Error('Unable to load cafes');
-                }
+                if (!response.ok) throw new Error('Unable to load cafes');
                 const data = await response.json();
-                if (active) {
-                    setCafes(Array.isArray(data) ? data : []);
-                }
+                if (active) setCafes(Array.isArray(data) ? data : []);
             } catch (e) {
-                if (active) {
-                    setError('Could not load cafes right now. Please try again.');
-                }
+                if (active) setError('Could not load cafes right now. Please try again.');
             } finally {
-                if (active) {
-                    setLoading(false);
-                }
+                if (active) setLoading(false);
             }
         };
-
         loadCafes();
-        return () => {
-            active = false;
-        };
+        return () => { active = false; };
     }, []);
 
     const filteredCafes = useMemo(() => {
-        if (!search.trim()) {
-            return cafes;
-        }
+        if (!search.trim()) return cafes;
         const q = search.toLowerCase();
         return cafes.filter((cafe) =>
             `${cafe.name || ''} ${cafe.city || ''} ${cafe.state || ''}`.toLowerCase().includes(q)
@@ -54,18 +41,9 @@ const HomePage = () => {
     }, [cafes, search]);
 
     const handleDashboardRoute = () => {
-        if (!user) {
-            navigate('/signin');
-            return;
-        }
-        if (user.role === 'CAFE_OWNER') {
-            navigate('/owner/dashboard');
-            return;
-        }
-        if (user.role === 'ADMIN') {
-            navigate('/admin');
-            return;
-        }
+        if (!user) { navigate('/signin'); return; }
+        if (user.role === 'CAFE_OWNER') { navigate('/owner/dashboard'); return; }
+        if (user.role === 'ADMIN') { navigate('/admin'); return; }
         navigate('/profile');
     };
 
@@ -82,7 +60,7 @@ const HomePage = () => {
                         <span className="brand-icon">CB</span>
                         <span>
                             <strong>Cafe Bridge</strong>
-                            <small>Discover and book top cafes</small>
+                            <small>Discover & book top cafes</small>
                         </span>
                     </button>
 
@@ -101,7 +79,7 @@ const HomePage = () => {
                         ) : (
                             <>
                                 <button type="button" className="ghost" onClick={handleDashboardRoute}>
-                                    {user.role === 'CAFE_OWNER' ? 'Owner Dashboard' : user.role === 'ADMIN' ? 'Admin Panel' : 'My Profile'}
+                                    {user.role === 'CAFE_OWNER' ? '☕ Owner Dashboard' : user.role === 'ADMIN' ? '⚙️ Admin Panel' : '👤 My Profile'}
                                 </button>
                                 <button type="button" className="primary" onClick={handleLogout}>Logout</button>
                             </>
@@ -114,16 +92,16 @@ const HomePage = () => {
                 <section className="hero">
                     <div className="hero-content">
                         <p className="eyebrow">One Platform. Many Cafes.</p>
-                        <h1>Reserve tables and order from your favorite local cafes.</h1>
+                        <h1>Reserve tables & order from your favorite local cafes.</h1>
                         <p>
-                            Browse all available cafes, open a cafe page, select tables, and place menu orders from a single experience.
+                            Browse all available cafes, view their menus, select tables, and place orders — all from a single seamless experience.
                         </p>
                         <div className="hero-search">
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search by cafe name, city, state"
+                                placeholder="Search by cafe name, city, or state..."
                             />
                             <button type="button" onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior: 'smooth' })}>
                                 Explore Cafes
@@ -136,20 +114,22 @@ const HomePage = () => {
                             <span>Available Cafes</span>
                         </article>
                         <article>
-                            <strong>24x7</strong>
+                            <strong>24×7</strong>
                             <span>Online Access</span>
                         </article>
                         <article>
-                            <strong>Fast</strong>
-                            <span>Table Booking + Orders</span>
+                            <strong>Instant</strong>
+                            <span>Table Booking & Orders</span>
                         </article>
                     </div>
                 </section>
 
                 <section className="cafes-section" id="cafes">
                     <div className="section-head">
-                        <h2>Available Cafes</h2>
-                        <p>Only active cafes are listed here.</p>
+                        <div>
+                            <h2>Available Cafes</h2>
+                            <p>Only verified and active cafes are listed below.</p>
+                        </div>
                     </div>
 
                     {loading ? (
@@ -161,17 +141,18 @@ const HomePage = () => {
                     ) : (
                         <div className="cafe-grid">
                             {filteredCafes.map((cafe) => (
-                                <article key={cafe.id} className="cafe-card">
+                                <article key={cafe.id} className="cafe-card" onClick={() => navigate(`/cafes/${cafe.id}`)}>
                                     <img
                                         src={cafe.coverImageUrl || cafe.logoUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400'}
                                         alt={cafe.name}
+                                        loading="lazy"
                                     />
                                     <div className="card-body">
                                         <h3>{cafe.name}</h3>
                                         <p>{cafe.city}, {cafe.state}</p>
                                         <small>{cafe.openHours || 'Open hours not updated'}</small>
-                                        <button type="button" onClick={() => navigate(`/cafes/${cafe.id}`)}>
-                                            Open Cafe Page
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); navigate(`/cafes/${cafe.id}`); }}>
+                                            View Cafe →
                                         </button>
                                     </div>
                                 </article>
@@ -183,18 +164,18 @@ const HomePage = () => {
                 <section className="how-it-works" id="how-it-works">
                     <article>
                         <span>1</span>
-                        <h4>Choose Cafe</h4>
-                        <p>Select from available cafes on the platform.</p>
+                        <h4>Choose a Cafe</h4>
+                        <p>Browse and pick from verified cafes available on the platform.</p>
                     </article>
                     <article>
                         <span>2</span>
-                        <h4>Book Table</h4>
-                        <p>Pick your preferred available table.</p>
+                        <h4>Book a Table</h4>
+                        <p>Select your preferred table type, date, time, and duration.</p>
                     </article>
                     <article>
                         <span>3</span>
-                        <h4>Order Menu</h4>
-                        <p>Add menu items and place your order instantly.</p>
+                        <h4>Place Orders</h4>
+                        <p>Browse the menu and add items to your order instantly.</p>
                     </article>
                 </section>
             </main>
@@ -203,12 +184,13 @@ const HomePage = () => {
                 <div className="footer-grid">
                     <div>
                         <h5>Cafe Bridge</h5>
-                        <p>Central cafe marketplace for customers and cafe owners.</p>
+                        <p>Central marketplace connecting customers with local cafe owners. Discover, book, and order — all in one place.</p>
                     </div>
                     <div>
                         <h5>Customer</h5>
                         <a href="#cafes">Browse Cafes</a>
                         <a href="/signin">Sign In</a>
+                        <a href="/register">Create Account</a>
                     </div>
                     <div>
                         <h5>Cafe Owner</h5>
@@ -218,7 +200,7 @@ const HomePage = () => {
                     <div>
                         <h5>Support</h5>
                         <a href="/forgot-password">Reset Password</a>
-                        <a href="/profile">Profile</a>
+                        <a href="/profile">My Profile</a>
                     </div>
                 </div>
                 <p className="copyright">© 2026 Cafe Bridge. All rights reserved.</p>
