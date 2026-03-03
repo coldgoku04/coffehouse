@@ -1,0 +1,375 @@
+.home-shell {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #f7f0e5 0%, #efe2d1 45%, #e6d3bc 100%);
+    color: #2f2217;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.home-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    background: rgba(255, 248, 238, 0.87);
+    border-bottom: 1px solid #e4d5c3;
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.brand {
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #8b4513, #b3692b);
+    color: #fff;
+    font-weight: 700;
+}
+
+.brand strong {
+    display: block;
+    font-size: 16px;
+}
+
+.brand small {
+    color: #7f6b58;
+    font-size: 12px;
+}
+
+.main-nav {
+    display: flex;
+    gap: 16px;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: #5f4936;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.header-cta {
+    display: flex;
+    gap: 8px;
+}
+
+.header-cta button {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 13px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.header-cta .ghost {
+    background: #f0dfcb;
+    color: #6d3b18;
+}
+
+.header-cta .primary {
+    background: linear-gradient(135deg, #8b4513, #b1672b);
+    color: #fff;
+}
+
+.home-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.hero {
+    border: 1px solid #e4d5c3;
+    border-radius: 20px;
+    padding: 24px;
+    background: linear-gradient(135deg, #fff7ec, #f7e5cf);
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 16px;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #8b4513;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.hero h1 {
+    margin: 10px 0;
+    font-size: 34px;
+    line-height: 1.2;
+}
+
+.hero p {
+    margin: 0;
+    color: #6e5b49;
+}
+
+.hero-search {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+}
+
+.hero-search input {
+    flex: 1;
+    border: 1px solid #d8c4ad;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.hero-search button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #8b4513;
+    color: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.hero-metrics {
+    display: grid;
+    gap: 10px;
+}
+
+.hero-metrics article {
+    border: 1px solid #e4d5c3;
+    border-radius: 12px;
+    padding: 14px;
+    background: #fffdf9;
+}
+
+.hero-metrics strong {
+    display: block;
+    font-size: 24px;
+}
+
+.hero-metrics span {
+    color: #7f6b58;
+    font-size: 13px;
+}
+
+.cafes-section {
+    margin-top: 18px;
+    border: 1px solid #e4d5c3;
+    border-radius: 18px;
+    background: #fffaf3;
+    padding: 18px;
+}
+
+.section-head h2 {
+    margin: 0;
+}
+
+.section-head p {
+    margin: 5px 0 0;
+    color: #7f6b58;
+}
+
+.state-panel {
+    margin-top: 12px;
+    border: 1px dashed #d9c6ae;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    color: #7f6b58;
+    background: #fff;
+}
+
+.cafe-grid {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 14px;
+}
+
+.cafe-card {
+    border: 1px solid #e4d5c3;
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(101, 64, 32, 0.08);
+}
+
+.cafe-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 12px;
+    display: grid;
+    gap: 6px;
+}
+
+.card-body h3 {
+    margin: 0;
+}
+
+.card-body p {
+    margin: 0;
+    color: #705c48;
+}
+
+.card-body small {
+    color: #90755e;
+}
+
+.card-body button {
+    margin-top: 4px;
+    border: none;
+    border-radius: 9px;
+    padding: 10px;
+    background: linear-gradient(135deg, #8b4513, #b3692b);
+    color: #fff;
+    cursor: pointer;
+}
+
+.how-it-works {
+    margin-top: 18px;
+    border: 1px solid #e4d5c3;
+    border-radius: 18px;
+    background: #fffaf3;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.how-it-works article {
+    border: 1px solid #e4d5c3;
+    border-radius: 12px;
+    padding: 14px;
+    background: #fff;
+}
+
+.how-it-works span {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #f3dfc7;
+    color: #7c3f15;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.how-it-works h4 {
+    margin: 0 0 6px;
+}
+
+.how-it-works p {
+    margin: 0;
+    color: #7f6b58;
+}
+
+.home-footer {
+    margin-top: 20px;
+    border-top: 1px solid #d9c5ad;
+    background: #2f2217;
+    color: #f4e8db;
+    padding: 22px 20px 14px;
+}
+
+.footer-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 14px;
+}
+
+.footer-grid h5 {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.footer-grid p {
+    margin: 0;
+    color: #d2c0ae;
+    font-size: 14px;
+}
+
+.footer-grid a {
+    display: block;
+    color: #f4e8db;
+    text-decoration: none;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.copyright {
+    max-width: 1200px;
+    margin: 14px auto 0;
+    padding-top: 10px;
+    border-top: 1px solid #4a392b;
+    color: #d2c0ae;
+    font-size: 13px;
+}
+
+@media (max-width: 980px) {
+    .main-nav {
+        display: none;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .how-it-works {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .header-inner {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+    }
+
+    .home-main {
+        padding: 12px;
+    }
+
+    .hero h1 {
+        font-size: 26px;
+    }
+
+    .hero-search {
+        flex-direction: column;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}

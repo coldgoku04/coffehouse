@@ -1,0 +1,581 @@
+/* Registration Page - 4-Step Wizard */
+.registration-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #6F4E37 0%, #3E2723 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.25rem;
+    position: relative;
+}
+
+/* Home Icon */
+.home-icon-btn {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    width: 42px;
+    height: 42px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 100;
+    font-size: 1.15rem;
+}
+
+.home-icon-btn:hover {
+    background: #D2691E;
+    border-color: #D2691E;
+    transform: scale(1.1);
+}
+
+/* Wizard Container */
+.wizard-container {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 620px;
+    width: 100%;
+    padding: 2rem;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.registration-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+
+.registration-header h1 {
+    color: #3E2723;
+    font-size: 1.55rem;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    color: #8B7355;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Progress Bar */
+.wizard-progress {
+    margin-bottom: 1.75rem;
+}
+
+.progress-bar {
+    height: 6px;
+    background: #E0E0E0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #D2691E, #8B4513);
+    transition: width 0.4s ease;
+    border-radius: 10px;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    position: relative;
+}
+
+.step-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #E0E0E0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s;
+    z-index: 2;
+}
+
+.progress-step.active .step-circle {
+    background: linear-gradient(135deg, #D2691E, #8B4513);
+    color: white;
+}
+
+.progress-step.current .step-circle {
+    box-shadow: 0 0 0 4px rgba(210, 105, 30, 0.2);
+    transform: scale(1.1);
+}
+
+.step-label {
+    font-size: 0.85rem;
+    color: #999;
+    font-weight: 500;
+}
+
+.progress-step.active .step-label {
+    color: #D2691E;
+}
+
+/* Wizard Step */
+.wizard-step {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.step-title {
+    color: #3E2723;
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-subtitle {
+    color: #8B7355;
+    margin-bottom: 1.15rem;
+    font-size: 0.92rem;
+}
+
+/* Section Divider */
+.section-divider {
+    margin: 1.25rem 0 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #F5F5F5;
+}
+
+.section-title {
+    color: #3E2723;
+    font-size: 1.02rem;
+    margin-bottom: 0.7rem;
+}
+
+/* Form Elements */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+}
+
+.form-group {
+    margin-bottom: 0.95rem;
+}
+
+.form-group label {
+    display: block;
+    color: #3E2723;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    font-size: 0.88rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.62rem 0.7rem;
+    border: 2px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    transition: all 0.3s;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #D2691E;
+    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+}
+
+.form-group input.error,
+.form-group select.error {
+    border-color: #e74c3c;
+}
+
+.field-error {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+/* File Upload */
+.file-upload-wrapper {
+    position: relative;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.7rem;
+    border: 2px dashed #D2691E;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #FFF8E7;
+}
+
+.file-label:hover {
+    background: #FFE4B5;
+    border-color: #8B4513;
+}
+
+.file-icon {
+    font-size: 1.5rem;
+}
+
+.file-text {
+    color: #3E2723;
+    font-size: 0.95rem;
+}
+
+.file-preview {
+    margin-top: 0.8rem;
+    padding: 0.8rem;
+    background: #E8F5E9;
+    border-radius: 8px;
+    color: #2E7D32;
+    font-size: 0.9rem;
+}
+
+/* Review Section */
+.review-section {
+    background: #F9F9F9;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #E0E0E0;
+}
+
+.review-header h3 {
+    color: #3E2723;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.edit-btn {
+    background: transparent;
+    border: 2px solid #D2691E;
+    color: #D2691E;
+    padding: 0.38rem 0.8rem;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.edit-btn:hover {
+    background: #D2691E;
+    color: white;
+}
+
+.review-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.review-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 1rem;
+}
+
+.review-label {
+    color: #8B7355;
+    font-weight: 600;
+    min-width: 150px;
+    font-size: 0.95rem;
+}
+
+.review-value {
+    color: #3E2723;
+    text-align: right;
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.review-value-muted {
+    color: #999;
+    font-style: italic;
+}
+
+/* Terms Section */
+.terms-section {
+    margin: 1.1rem 0 0.75rem;
+    padding: 0.9rem;
+    background: #FFF8E7;
+    border-radius: 10px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.checkbox-label span {
+    color: #3E2723;
+    font-size: 0.95rem;
+}
+
+/* Wizard Actions */
+.wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.btn-primary,
+.btn-secondary {
+    flex: 1;
+    padding: 0.75rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #D2691E, #8B4513);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(210, 105, 30, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: white;
+    border: 2px solid #D2691E;
+    color: #D2691E;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #FFF8E7;
+}
+
+.btn-submit {
+    flex: 2;
+}
+
+/* Spinner */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Sign In Link */
+.signin-link {
+    text-align: center;
+    margin-top: 2rem;
+    color: #8B7355;
+}
+
+.signin-link a {
+    color: #D2691E;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.signin-link a:hover {
+    text-decoration: underline;
+}
+
+/* Success Container */
+.success-container {
+    text-align: center;
+    background: white;
+    padding: 4rem 3rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.5s ease;
+}
+
+.success-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.success-container h2 {
+    color: #3E2723;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.success-container p {
+    color: #8B7355;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Error Message */
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 1rem;
+    border-left: 4px solid #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wizard-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .progress-steps {
+        gap: 0.5rem;
+    }
+
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+    }
+
+    .wizard-actions {
+        flex-direction: column;
+    }
+
+    .review-item {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .review-label {
+        min-width: auto;
+    }
+
+    .review-value {
+        text-align: left;
+    }
+
+    .home-icon-btn {
+        top: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .registration-page {
+        padding: 1rem;
+    }
+
+    .wizard-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+    }
+
+    .registration-header h1 {
+        font-size: 1.5rem;
+    }
+}
