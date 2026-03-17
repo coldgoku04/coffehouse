@@ -327,10 +327,10 @@ const Registration = () => {
                         >
                             <div className="step-circle">{step}</div>
                             <div className="step-label">
-                                {step === 1 && 'Personal'}
-                                {step === 2 && 'Education'}
-                                {step === 3 && 'Address'}
-                                {step === 4 && 'Review'}
+                                {step === 1 && '👤 Personal'}
+                                {step === 2 && '🎓 Education'}
+                                {step === 3 && '🏠 Address'}
+                                {step === 4 && '✅ Review'}
                             </div>
                         </div>
                     ))}
@@ -342,7 +342,7 @@ const Registration = () => {
     const renderStep1 = () => {
         return (
             <div className="wizard-step">
-                <h2 className="step-title">Personal Information</h2>
+                <h2 className="step-title">👤 Personal Information</h2>
                 <p className="step-subtitle">Let's start with your basic details</p>
 
                 <div className="form-row">
@@ -441,7 +441,7 @@ const Registration = () => {
     const renderStep2 = () => {
         return (
             <div className="wizard-step">
-                <h2 className="step-title">Education & Verification</h2>
+                <h2 className="step-title">🎓 Education & Verification</h2>
                 <p className="step-subtitle">Educational background and identity verification. Education is mandatory for Cafe Owner role.</p>
 
                 <div className="section-divider">
@@ -583,7 +583,7 @@ const Registration = () => {
                 )}
 
                 <div className="section-divider">
-                    <h3 className="section-title">📄 Government ID Proof (Required)</h3>
+                    <h3 className="section-title">🪪 Government ID Proof (Required)</h3>
                 </div>
 
                 <div className="form-group">
@@ -616,14 +616,14 @@ const Registration = () => {
                             className="file-input"
                         />
                         <label htmlFor="govIdFile" className="file-label">
-                            <span className="file-icon"></span>
+                            <span className="file-icon">📎</span>
                             <span className="file-text">
                                 {formData.govIdFileName || 'Choose file (JPG, PNG, PDF - Max 2MB)'}
                             </span>
                         </label>
                         {formData.govIdFileName && (
                             <div className="file-preview">
-                                ✅ {formData.govIdFileName}
+                                 {formData.govIdFileName}
                             </div>
                         )}
                     </div>
@@ -636,7 +636,7 @@ const Registration = () => {
     const renderStep3 = () => {
         return (
             <div className="wizard-step">
-                <h2 className="step-title">Address Information</h2>
+                <h2 className="step-title">🏠 Address Information</h2>
                 <p className="step-subtitle">Where can we reach you?</p>
 
                 <div className="form-group">
@@ -723,7 +723,7 @@ const Registration = () => {
     const renderStep4 = () => {
         return (
             <div className="wizard-step">
-                <h2 className="step-title">Review & Submit</h2>
+                <h2 className="step-title">✅ Review & Submit</h2>
                 <p className="step-subtitle">Please review your information before submitting</p>
 
                 <div className="review-section">
@@ -836,14 +836,14 @@ const Registration = () => {
                         </div>
                         <div className="review-item">
                             <span className="review-label">Document:</span>
-                            <span className="review-value">📄 {formData.govIdFileName}</span>
+                            <span className="review-value"> {formData.govIdFileName}</span>
                         </div>
                     </div>
                 </div>
 
                 <div className="review-section">
                     <div className="review-header">
-                        <h3>📍 Address Information</h3>
+                        <h3>🏠 Address Information</h3>
                         <button
                             type="button"
                             className="edit-btn"
@@ -890,8 +890,8 @@ const Registration = () => {
         return (
             <div className="registration-page">
                 <div className="success-container">
-                    <div className="success-icon">✅</div>
-                    <h2>Registration Successful!</h2>
+                    <div className="success-icon"></div>
+                    <h2>✅ Registration Successful!</h2>
                     <p>Your account has been created successfully.</p>
                     <p>Redirecting to sign in page...</p>
                 </div>
@@ -907,7 +907,7 @@ const Registration = () => {
 
             <div className="registration-container wizard-container">
                 <div className="registration-header">
-                    <h1>☕ Cafe House Registration</h1>
+                    <h1>📝 Cafe House Registration</h1>
                     <p className="header-subtitle">Step {currentStep} of 4</p>
                 </div>
 
@@ -927,7 +927,7 @@ const Registration = () => {
                                 onClick={handleBack}
                                 disabled={isLoading}
                             >
-                                ← Back
+                                 ⬅️ Back
                             </button>
                         )}
 
@@ -937,7 +937,7 @@ const Registration = () => {
                                 className="btn-primary"
                                 onClick={handleNext}
                             >
-                                Next →
+                                Next ➡️
                             </button>
                         ) : (
                             <button
@@ -951,7 +951,7 @@ const Registration = () => {
                                         Submitting...
                                     </>
                                 ) : (
-                                    'Submit Registration'
+                                    '✅ Submit Registration'
                                 )}
                             </button>
                         )}
@@ -971,6 +971,7 @@ const Registration = () => {
 };
 
 export default Registration;
+
 
 
 

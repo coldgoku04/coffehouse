@@ -71,7 +71,7 @@ const ForgotPassword = () => {
     return (
         <div className="forgot-password-page">
             <div className="forgot-password-card">
-                <h2>Forgot Password</h2>
+                <h2>🔐 Forgot Password</h2>
                 <p>Use OTP verification to reset your password.</p>
 
                 {step === 1 ? (
@@ -85,7 +85,7 @@ const ForgotPassword = () => {
                             required
                         />
                         <button type="submit" disabled={loading}>
-                            {loading ? 'Sending OTP...' : 'Send OTP'}
+                            {loading ? 'Sending OTP...' : '📨 Send OTP'}
                         </button>
                     </form>
                 ) : (
@@ -115,7 +115,7 @@ const ForgotPassword = () => {
                             required
                         />
                         <button type="submit" disabled={loading}>
-                            {loading ? 'Resetting...' : 'Reset Password'}
+                            {loading ? 'Resetting...' : '✅ Reset Password'}
                         </button>
                     </form>
                 )}
@@ -124,7 +124,7 @@ const ForgotPassword = () => {
                 {message && <div className="forgot-password-message">{message}</div>}
 
                 <div className="forgot-password-back">
-                    <button type="button" onClick={() => navigate('/signin')}>Back to Sign In</button>
+                    <button type="button" onClick={() => navigate('/signin')}>⬅️ Back to Sign In</button>
                 </div>
             </div>
         </div>

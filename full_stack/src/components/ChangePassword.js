@@ -48,7 +48,7 @@ const ChangePassword = () => {
 
     return (
         <div className="change-password-container">
-            <h2 className="change-password-title">Change Password</h2>
+            <h2 className="change-password-title">🔑 Change Password</h2>
             <form className="change-password-form" onSubmit={handleSubmit}>
                 <label className="change-password-label">
                     Current Password:
@@ -62,7 +62,7 @@ const ChangePassword = () => {
                     Confirm New Password:
                     <input className="change-password-input" type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required />
                 </label>
-                <button className="change-password-btn" type="submit">Change Password</button>
+                <button className="change-password-btn" type="submit">✅ Change Password</button>
             </form>
             {error && <div className="change-password-error">{error}</div>}
             {message && (

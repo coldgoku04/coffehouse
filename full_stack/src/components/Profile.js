@@ -77,6 +77,7 @@ const Profile = () => {
         }
     };
 
+
     if (loading) return <div className="cafe-page-state" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#faf6f1', color: '#8a7968' }}>Loading profile...</div>;
     if (error && !profile.email) return <div className="profile-error">{error}</div>;
 
@@ -94,7 +95,7 @@ const Profile = () => {
 
     return (
         <div className="profile-container">
-            <h2 className="profile-title">Your Profile</h2>
+            <h2 className="profile-title">👤 Your Profile</h2>
             {message && <div className="profile-message">{message}</div>}
             {error && profile.email && <div className="profile-error" style={{ margin: '0 0 16px', maxWidth: '100%' }}>{error}</div>}
 
@@ -113,23 +114,24 @@ const Profile = () => {
 
                 {!editMode ? (
                     <div className="profile-actions">
-                        <button className="profile-btn" type="button" onClick={() => setEditMode(true)}>✏️ Edit Profile</button>
+                        <button className="profile-btn" type="button" onClick={() => setEditMode(true)}> ✏️ Edit Profile</button>
                     </div>
                 ) : (
                     <div className="profile-actions">
-                        <button className="profile-btn" type="button" onClick={handleUpdate}>✓ Save Changes</button>
+                        <button className="profile-btn" type="button" onClick={handleUpdate}> 💾 Save Changes</button>
                         <button className="profile-btn" type="button" onClick={() => { setEditMode(false); setMessage(''); setError(''); }}>Cancel</button>
                     </div>
                 )}
             </form>
 
             <div className="profile-links">
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>🏠 Home Page</a>
-                <a href="/change-password" onClick={(e) => { e.preventDefault(); navigate('/change-password'); }}>🔒 Change Password</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }}> 🏠 Home Page</a>
+                <a href="/change-password" onClick={(e) => { e.preventDefault(); navigate('/change-password'); }}> 🔑 Change Password</a>
                 {user?.role === 'CAFE_OWNER' && (
-                    <a href="/owner/dashboard" onClick={(e) => { e.preventDefault(); navigate('/owner/dashboard'); }}>☕ Owner Dashboard</a>
+                    <a href="/owner/dashboard" onClick={(e) => { e.preventDefault(); navigate('/owner/dashboard'); }}> 📊 Owner Dashboard</a>
                 )}
             </div>
+
         </div>
     );
 };

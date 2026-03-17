@@ -8,7 +8,7 @@ const SignIn = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
     const [formData, setFormData] = useState({
-        username: '',  // ← Changed from email to username
+        username: '',  //  Changed from email to username
         password: '',
         role: '',
         rememberMe: false
@@ -20,7 +20,7 @@ const SignIn = () => {
    /* const roles = [
         { value: 'ADMIN', label: 'Admin' },
         { value: 'CUSTOMER', label: 'Customer' },
-        { value: 'CAFE_OWNER', label: 'Café Owner' },
+        { value: 'CAFE_OWNER', label: 'Caf Owner' },
         { value: 'CHEF', label: 'Chef' },
         { value: 'WAITER', label: 'Waiter' }
     ];*/
@@ -101,10 +101,18 @@ const SignIn = () => {
 
                 const isAdmin = user.role === "ADMIN";
                 const isOwner = user.role === "CAFE_OWNER";
+                const isChef = user.role === "CHEF";
+                const isWaiter = user.role === "WAITER";
                 const mustChangePassword = user.mustChangePassword === true;
                 const destination = mustChangePassword && !isAdmin
                     ? "/change-password"
-                    : (isAdmin ? "/admin" : (isOwner ? "/owner/dashboard" : "/"));
+                    : (isAdmin
+                        ? "/admin"
+                        : (isOwner
+                            ? "/owner/dashboard"
+                            : (isChef
+                                ? "/chef/dashboard"
+                                : (isWaiter ? "/waiter/dashboard" : "/"))));
                 navigate(destination);
             } else {
                 if (responseData && typeof responseData === "object") {
@@ -139,9 +147,9 @@ const SignIn = () => {
                         <p>Your daily dose of happiness</p>
                     </div>
                     <div className="signin-illustration">
-                        <div className="floating-cup">☕</div>
+                        <div className="floating-cup"></div>
                         <div className="signin-text">
-                            <h2>Welcome Back!</h2>
+                            <h2>👋 Welcome Back!</h2>
                             <p>Sign in with your credentials received via email</p>
                         </div>
                     </div>
@@ -150,7 +158,7 @@ const SignIn = () => {
                 <div className="signin-right">
                     <div className="signin-form-container">
                         <div className="signin-header">
-                            <h2>Sign In</h2>
+                            <h2>🔐 Sign In</h2>
                             <p>Enter your credentials to access your account</p>
                         </div>
 
@@ -222,7 +230,7 @@ const SignIn = () => {
                                     />
                                     <span>Remember me</span>
                                 </label>
-                                <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+                                <Link to="/forgot-password" className="forgot-link">❓ Forgot Password?</Link>
                             </div>
 
                             <button
@@ -230,7 +238,7 @@ const SignIn = () => {
                                 className="btn-signin"
                                 disabled={isLoading}
                             >
-                                {isLoading ? 'Signing in...' : 'Sign In'}
+                                {isLoading ? 'Signing in...' : '🔓 Sign In'}
                             </button>
 
                             <div className="divider">
@@ -254,7 +262,7 @@ const SignIn = () => {
                             </div>
 
                             <div className="register-link">
-                                Don't have an account? <a href="/register">Register Now</a>
+                                Don't have an account? <a href="/register">📝 Register Now</a>
                             </div>
                         </form>
                     </div>

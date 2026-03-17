@@ -301,6 +301,41 @@
     flex-wrap: wrap;
 }
 
+.approval-id-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    color: #5f6c86;
+    font-size: 0.85rem;
+}
+
+.approval-id-label {
+    font-weight: 600;
+}
+
+.approval-id-type {
+    background: #eef2f8;
+    border: 1px solid #d6dde9;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.8rem;
+}
+
+.id-view-btn {
+    border: 1px solid #2ab3a6;
+    background: #e9f8f4;
+    color: #19744a;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.id-missing {
+    color: #9aa3b2;
+}
+
 .approve-btn,
 .reject-btn {
     border: none;

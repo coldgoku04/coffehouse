@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
@@ -12,6 +12,9 @@ import ChangePassword from './components/ChangePassword';
 import Profile from './components/Profile';
 import ForgotPassword from './components/ForgotPassword';
 import OwnerDashboard from './components/OwnerDashboard';
+import ChefDashboard from './components/ChefDashboard';
+import WaiterDashboard from './components/WaiterDashboard';
+import CustomerOrdersDashboard from './components/CustomerOrdersDashboard';
 
 // Auth context & wrapper imports
 import { AuthProvider, useAuth } from './components/AuthContext';
@@ -32,6 +35,20 @@ function RequireAdmin({ children }) {
 function RequireOwner({ children }) {
     const { user } = useAuth();
     return user && user.role === 'CAFE_OWNER'
+        ? children
+        : <Navigate to="/signin" replace />;
+}
+
+function RequireChef({ children }) {
+    const { user } = useAuth();
+    return user && user.role === 'CHEF'
+        ? children
+        : <Navigate to="/signin" replace />;
+}
+
+function RequireWaiter({ children }) {
+    const { user } = useAuth();
+    return user && user.role === 'WAITER'
         ? children
         : <Navigate to="/signin" replace />;
 }
@@ -64,10 +81,34 @@ function App() {
                             }
                         />
                         <Route
+                            path="/chef/dashboard"
+                            element={
+                                <RequireChef>
+                                    <ChefDashboard />
+                                </RequireChef>
+                            }
+                        />
+                        <Route
+                            path="/waiter/dashboard"
+                            element={
+                                <RequireWaiter>
+                                    <WaiterDashboard />
+                                </RequireWaiter>
+                            }
+                        />
+                        <Route
                             path="/profile"
                             element={
                                 <RequireAuth>
                                     <Profile />
+                                </RequireAuth>
+                            }
+                        />
+                        <Route
+                            path="/customer/orders"
+                            element={
+                                <RequireAuth>
+                                    <CustomerOrdersDashboard />
                                 </RequireAuth>
                             }
                         />

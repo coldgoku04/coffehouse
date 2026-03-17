@@ -91,7 +91,7 @@ const ImageUploader = ({ value, onChange, multiple = false, label = 'Upload Phot
 
     return (
         <div className="img-uploader">
-            <label className="img-uploader-label">{label}</label>
+            <label className="img-uploader-label">🖼️ {label}</label>
 
             {/* Drop zone */}
             <div
@@ -119,12 +119,12 @@ const ImageUploader = ({ value, onChange, multiple = false, label = 'Upload Phot
                         }
                     </p>
                     <span className="img-dropzone-hint">
-                        JPG, PNG, WEBP — Max {maxSizeMB}MB{multiple ? ` — Up to ${maxFiles} images` : ''}
+                        JPG, PNG, WEBP  Max {maxSizeMB}MB{multiple ? `  Up to ${maxFiles} images` : ''}
                     </span>
                 </div>
             </div>
 
-            {error && <p className="img-uploader-error">❌ {error}</p>}
+            {error && <p className="img-uploader-error"> {error}</p>}
 
             {/* Image previews */}
             {images.length > 0 && (
@@ -152,7 +152,7 @@ const ImageUploader = ({ value, onChange, multiple = false, label = 'Upload Phot
                                     title="Remove"
                                     onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                                 >
-                                    ✕
+                                    🗑️
                                 </button>
                             </div>
                             {multiple && <span className="img-preview-count">{index + 1}/{images.length}</span>}

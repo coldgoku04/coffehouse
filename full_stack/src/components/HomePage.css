@@ -1,4 +1,4 @@
-/* ===== HOMEPAGE / LANDING PAGE — REDESIGN ===== */
+/* ===== HOMEPAGE / LANDING PAGE  REDESIGN ===== */
 :root {
     --hp-bg: #faf6f1;
     --hp-card: #ffffff;
@@ -24,6 +24,10 @@
     background: var(--hp-bg);
     color: var(--hp-text);
     font-family: var(--hp-font);
+}
+
+.emoji {
+    font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ===== HEADER ===== */
@@ -230,7 +234,7 @@
 }
 
 .eyebrow::before {
-    content: '☕';
+    content: '';
     font-size: 14px;
 }
 
@@ -244,6 +248,13 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.hero h1 .emoji {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: inherit;
+    font-variant-emoji: emoji;
 }
 
 .hero > .hero-content > p {
@@ -348,6 +359,56 @@
     box-shadow: var(--hp-shadow);
 }
 
+.customer-orders {
+    margin-top: 28px;
+    border: 1px solid var(--hp-stroke);
+    border-radius: 20px;
+    background: var(--hp-card);
+    padding: 24px;
+    box-shadow: var(--hp-shadow);
+}
+
+.orders-grid {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.order-card {
+    border: 1px solid var(--hp-stroke);
+    border-radius: var(--hp-radius);
+    background: #fffdfa;
+    padding: 16px;
+    box-shadow: var(--hp-shadow);
+}
+
+.order-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.order-meta {
+    color: var(--hp-muted);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.order-items {
+    margin: 0 0 8px;
+    padding-left: 18px;
+    color: var(--hp-text);
+    font-size: 14px;
+}
+
+.order-total {
+    font-weight: 700;
+    color: var(--hp-text);
+}
+
 .section-head {
     display: flex;
     justify-content: space-between;
@@ -365,7 +426,7 @@
 }
 
 .section-head h2::before {
-    content: '🏪';
+    content: '';
     font-size: 22px;
 }
 
@@ -386,7 +447,7 @@
     font-size: 15px;
 }
 
-/* ===== CAFE CARDS ===== */
+/* ===== CAFE CARDS - UPDATED ===== */
 .cafe-grid {
     margin-top: 18px;
     display: grid;
@@ -402,6 +463,8 @@
     box-shadow: var(--hp-shadow);
     transition: transform var(--hp-transition), box-shadow var(--hp-transition);
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 
 .cafe-card:hover {
@@ -409,13 +472,30 @@
     box-shadow: var(--hp-shadow-lg);
 }
 
-.cafe-card img {
+.cafe-card-image {
     width: 100%;
-    height: 170px;
+    height: 160px;
+    background: #f5ede4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cafe-card-image img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
     transition: transform 0.4s ease;
 }
+
+.cafe-card:hover .cafe-card-image img {
+    transform: scale(1.05);
+}
+
 
 .cafe-card:hover img {
     transform: scale(1.05);
@@ -423,14 +503,17 @@
 
 .card-body {
     padding: 16px;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    flex: 1;
 }
 
 .card-body h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 700;
+    line-height: 1.3;
 }
 
 .card-body p {
@@ -443,7 +526,7 @@
 }
 
 .card-body p::before {
-    content: '📍';
+    content: '';
     font-size: 13px;
 }
 
@@ -456,12 +539,12 @@
 }
 
 .card-body small::before {
-    content: '🕐';
+    content: '';
     font-size: 12px;
 }
 
 .card-body button {
-    margin-top: 6px;
+    margin-top: auto;
     border: none;
     border-radius: var(--hp-radius-sm);
     padding: 11px;
@@ -477,7 +560,6 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(160,82,45,0.3);
 }
-
 /* ===== HOW IT WORKS ===== */
 .how-it-works {
     margin-top: 28px;

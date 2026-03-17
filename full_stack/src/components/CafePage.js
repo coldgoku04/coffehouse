@@ -1,226 +1,567 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiUrl } from '../config/api';
+import { useAuth } from './AuthContext';
 import './CafePage.css';
 
 const CafePage = () => {
     const { cafeId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [details, setDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const [selectedTableId, setSelectedTableId] = useState('');
-    const [cartItems, setCartItems] = useState([]);
-    const [checkoutMessage, setCheckoutMessage] = useState('');
+    const [bookingMessage, setBookingMessage] = useState(null);
+    const [isPaying, setIsPaying] = useState(false);
+    const [selectedItems, setSelectedItems] = useState({});
+    const [activeSection, setActiveSection] = useState('menu');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [bookingForm, setBookingForm] = useState({
+        tableId: '',
+        date: '',
+        time: '',
+        duration: '60'
+    });
 
-    useEffect(() => {
-        let active = true;
-        const loadCafe = async () => {
-            setLoading(true);
-            setError('');
-            setSelectedCategory('All');
-            setSelectedTableId('');
-            setCartItems([]);
-            setCheckoutMessage('');
-            try {
-                const response = await fetch(apiUrl(`/api/cafes/${cafeId}`));
-                if (!response.ok) throw new Error('Unable to load cafe');
-                const data = await response.json();
-                if (active) setDetails(data);
-            } catch (e) {
-                if (active) setError('Cafe not found or unavailable.');
-            } finally {
-                if (active) setLoading(false);
-            }
-        };
-        loadCafe();
-        return () => { active = false; };
+    const loadCafe = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await fetch(apiUrl(`/api/cafes/${cafeId}`));
+            if (!response.ok) throw new Error('Unable to load cafe');
+            const data = await response.json();
+            setDetails(data);
+        } catch (e) {
+            setError('Cafe not found or unavailable.');
+        } finally {
+            setLoading(false);
+        }
     }, [cafeId]);
 
-    const categories = useMemo(() => {
-        if (!details?.menu) return ['All'];
-        const set = new Set(details.menu.map((item) => item.category || 'Uncategorized'));
-        return ['All', ...set];
-    }, [details]);
+    useEffect(() => {
+        loadCafe();
+    }, [loadCafe]);
 
-    const filteredMenu = useMemo(() => {
-        if (!details?.menu) return [];
-        if (selectedCategory === 'All') return details.menu;
-        return details.menu.filter((item) => (item.category || 'Uncategorized') === selectedCategory);
-    }, [details, selectedCategory]);
+    useEffect(() => {
+        if (bookingMessage?.text) {
+            const timer = setTimeout(() => setBookingMessage(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [bookingMessage]);
 
-    const cartTotal = useMemo(() => cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cartItems]);
-    const coverImage = details?.cafe?.coverImageUrl || details?.cafe?.logoUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200';
-
-    const addToCart = (menuItem) => {
-        setCheckoutMessage('');
-        setCartItems((prev) => {
-            const existing = prev.find((x) => x.id === menuItem.id);
-            if (existing) return prev.map((x) => x.id === menuItem.id ? { ...x, quantity: x.quantity + 1 } : x);
-            return [...prev, { ...menuItem, quantity: 1 }];
-        });
-    };
-
-    const updateQty = (itemId, delta) => {
-        setCartItems((prev) =>
-            prev.map((item) => item.id === itemId ? { ...item, quantity: item.quantity + delta } : item)
-                .filter((item) => item.quantity > 0)
-        );
-    };
-
-    const placeOrder = async () => {
-        if (!selectedTableId || cartItems.length === 0) {
-            setCheckoutMessage('Select a table and add items to place order.');
+    const loadRazorpayScript = useCallback(() => new Promise((resolve) => {
+        if (window.Razorpay) {
+            resolve(true);
             return;
         }
-        const table = (details?.tables || []).find((x) => x.id === selectedTableId);
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    }), []);
+
+    const availableTables = useMemo(
+        () => (details?.tables || []).filter((t) => t.available !== false),
+        [details]
+    );
+
+    const selectedTable = useMemo(
+        () => (details?.tables || []).find((t) => t.id === bookingForm.tableId),
+        [details, bookingForm.tableId]
+    );
+
+    const menu = useMemo(() => details?.menu || [], [details]);
+    const cartItems = useMemo(
+        () => menu.filter((item) => (selectedItems[item.id] || 0) > 0),
+        [menu, selectedItems]
+    );
+    const cartTotal = useMemo(
+        () => cartItems.reduce((sum, item) => sum + (item.price || 0) * (selectedItems[item.id] || 0), 0),
+        [cartItems, selectedItems]
+    );
+
+    const updateQty = (itemId, next) => {
+        setSelectedItems((prev) => ({ ...prev, [itemId]: Math.max(0, next) }));
+    };
+
+    const submitBooking = async (e) => {
+        e.preventDefault();
+        if (!user?.id) {
+            setBookingMessage({ type: 'error', text: 'Please sign in before booking.' });
+            return;
+        }
+        if (!bookingForm.tableId || !bookingForm.date || !bookingForm.time) {
+            setBookingMessage({ type: 'error', text: 'Please select table, date and time.' });
+            return;
+        }
+        if (cartItems.length === 0) {
+            setBookingMessage({ type: 'error', text: 'Please add at least one menu item.' });
+            return;
+        }
+
+        const bookingDateTime = `${bookingForm.date}T${bookingForm.time}:00`;
         const payload = {
-            tableId: selectedTableId,
-            tableNumber: table?.tableNumber || selectedTableId,
+            tableId: bookingForm.tableId,
+            tableNumber: selectedTable?.tableNumber || '',
+            customerId: user.id,
+            customerName: user.name || user.username || user.email || 'Customer',
+            bookingDateTime,
+            durationMinutes: Number(bookingForm.duration),
             items: cartItems.map((item) => ({
                 menuItemId: item.id,
                 name: item.name,
-                price: item.price,
-                quantity: item.quantity
+                quantity: selectedItems[item.id],
+                price: item.price
             }))
         };
+
+        setIsPaying(true);
         try {
-            const response = await fetch(apiUrl(`/api/cafes/${cafeId}/orders`), {
+            const amountPaise = Math.round(cartTotal * 100);
+            const orderRes = await fetch(apiUrl('/api/payments/orders'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    amount: amountPaise,
+                    currency: 'INR'
+                })
             });
-            if (!response.ok) throw new Error('Order failed');
-            setCheckoutMessage(`✅ Order placed for Table ${payload.tableNumber}!`);
-            setCartItems([]);
-        } catch (e) {
-            setCheckoutMessage('Could not place order right now.');
+            const orderData = await orderRes.json().catch(() => ({}));
+            if (!orderRes.ok) {
+                throw new Error(orderData.message || 'Unable to start payment.');
+            }
+
+            const scriptLoaded = await loadRazorpayScript();
+            if (!scriptLoaded) {
+                throw new Error('Unable to load payment gateway. Please try again.');
+            }
+
+            const options = {
+                key: orderData.keyId,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: details?.name || 'Cafe',
+                description: `Order payment for Table ${selectedTable?.tableNumber || ''}`,
+                order_id: orderData.orderId,
+                prefill: {
+                    name: user?.name || user?.username || '',
+                    email: user?.email || '',
+                    contact: user?.phone || ''
+                },
+                handler: async (response) => {
+                    try {
+                        const verifyRes = await fetch(apiUrl('/api/payments/verify'), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderId: response.razorpay_order_id,
+                                paymentId: response.razorpay_payment_id,
+                                signature: response.razorpay_signature
+                            })
+                        });
+                        if (!verifyRes.ok) {
+                            const verifyText = await verifyRes.text().catch(() => '');
+                            throw new Error(verifyText || 'Payment verification failed.');
+                        }
+
+                        const res = await fetch(apiUrl(`/api/cafes/${cafeId}/orders`), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error(data.message || 'Booking failed');
+
+                        setBookingMessage({ type: 'success', text: 'Payment successful. Order placed.' });
+                        setBookingForm({ tableId: '', date: '', time: '', duration: '60' });
+                        setSelectedItems({});
+                        setActiveSection('menu');
+                        await loadCafe();
+                    } catch (err) {
+                        setBookingMessage({ type: 'error', text: err.message || 'Payment verified but booking failed.' });
+                    }
+                },
+                modal: {
+                    ondismiss: () => {
+                        setBookingMessage({ type: 'info', text: 'Payment was cancelled.' });
+                    }
+                },
+                theme: { color: '#8b5a2b' }
+            };
+
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.on('payment.failed', () => {
+                setBookingMessage({ type: 'error', text: 'Payment failed. Please try again.' });
+            });
+            paymentObject.open();
+        } catch (err) {
+            setBookingMessage({ type: 'error', text: err.message || 'Could not complete booking.' });
+        } finally {
+            setIsPaying(false);
         }
     };
 
-    if (loading) return <div className="cafe-page-state">☕ Loading cafe details...</div>;
+    if (loading) return <div className="cp-loading">Loading cafe details...</div>;
     if (error || !details) {
         return (
-            <div className="cafe-page-state">
+            <div className="cp-error-state">
                 <p>{error || 'Cafe unavailable.'}</p>
-                <button type="button" onClick={() => navigate('/')}>Back to Cafes</button>
+                <button type="button" className="cp-btn cp-btn-primary" onClick={() => navigate('/')}> Back to Cafes</button>
             </div>
         );
     }
 
-    return (
-        <div className="cafe-page">
-            <header className="cafe-page-header">
-                <div>
-                    <button type="button" className="link-btn" onClick={() => navigate('/')}>Back to All Cafes</button>
-                    <h1>{details.cafe?.name}</h1>
-                    <p>📍 {details.cafe?.city}, {details.cafe?.state} &nbsp;|&nbsp; 🕐 {details.cafe?.openHours || 'Hours not updated'}</p>
-                </div>
-                <div className="staff-pill">👥 {details.waiterCount || 0} Waiters &bull; {details.chefCount || 0} Chefs</div>
-            </header>
+    const menuItems = [
+        { key: 'menu', icon: '📋', label: 'Menu Selection' },
+        { key: 'tables', icon: '🪑', label: 'Select Table' },
+        { key: 'booking', icon: '✅', label: 'Confirm Booking' }
+    ];
 
-            <div className="cafe-cover">
-                <img src={coverImage} alt={`${details.cafe?.name} cover`} />
+    // ===== RENDER SECTIONS =====
+    // Find this section in the renderMenu function and update it:
+
+    const renderMenu = () => (
+        <>
+            <div className="cp-toolbar">
+                <h3>🍽️ Select Your Menu Items</h3>
+                <div className="cp-toolbar-info">
+                    <span className="cp-info-badge">Items: {cartItems.length}</span>
+                    <span className="cp-info-badge">Total: INR {cartTotal}</span>
+                </div>
             </div>
 
-            <section className="cafe-layout">
-                {/* TABLE BOOKING */}
-                <article className="panel">
-                    <h3>🪑 Select Table</h3>
-                    {(details.tables || []).length === 0 ? (
-                        <p className="muted">No tables available.</p>
-                    ) : (
-                        <div className="table-grid">
-                            {(details.tables || []).map((table) => (
-                                <button
-                                    type="button"
-                                    key={table.id}
-                                    disabled={!table.available}
-                                    className={`table-pill ${!table.available ? 'off' : ''} ${selectedTableId === table.id ? 'on' : ''}`}
-                                    onClick={() => table.available && setSelectedTableId(table.id)}
-                                >
-                                    <span>T-{table.tableNumber}</span>
-                                    <small>{table.category || 'Regular'}</small>
-                                    <small>{table.capacity} seats</small>
-                                </button>
-                            ))}
+            {menu.length === 0 ? (
+                <div className="cp-empty-state">
+                    <span className="cp-empty-icon">🍽️</span>
+                    <p>No menu items available at the moment.</p>
+                </div>
+            ) : (
+                <div className="cp-menu-grid">
+                    {menu.map((item) => {
+                        const qty = selectedItems[item.id] || 0;
+                        return (
+                            <div key={item.id} className={`cp-menu-card ${qty > 0 ? 'selected' : ''}`}>
+                                {/* Only show image if imageUrl exists */}
+                                {item.imageUrl && (
+                                    <img src={item.imageUrl} alt={item.name} className="cp-menu-img" />
+                                )}
+                                <div className="cp-menu-body">
+                                    <div className="cp-menu-top">
+                                        <h4>{item.name}</h4>
+                                        <span className="cp-price-badge">{item.price}</span>
+                                    </div>
+                                    {item.category && <span className="cp-category-tag">{item.category}</span>}
+                                    {item.description && <p className="cp-menu-desc">{item.description}</p>}
+                                </div>
+                                <div className="cp-menu-actions">
+                                    <button
+                                        type="button"
+                                        className="cp-qty-btn"
+                                        onClick={() => updateQty(item.id, qty - 1)}
+                                        disabled={qty === 0}
+                                    >
+                                        ➖
+                                    </button>
+                                    <span className="cp-qty-display">{qty}</span>
+                                    <button
+                                        type="button"
+                                        className="cp-qty-btn"
+                                        onClick={() => updateQty(item.id, qty + 1)}
+                                    >
+                                        ➕
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+
+            {cartItems.length > 0 && (
+                <div className="cp-next-section">
+                    <button className="cp-btn cp-btn-primary" onClick={() => setActiveSection('tables')}>
+                        ➡️ Next: Select Table
+                    </button>
+                </div>
+            )}
+        </>
+    );
+
+    const renderTables = () => (
+        <>
+            <div className="cp-toolbar">
+                <h3>🪑 Available Tables</h3>
+                {bookingForm.tableId && (
+                    <span className="cp-info-badge selected">
+                         ✅ Table #{selectedTable?.tableNumber} Selected
+                    </span>
+                )}
+            </div>
+
+            {availableTables.length === 0 ? (
+                <div className="cp-empty-state">
+                    <span className="cp-empty-icon">🪑</span>
+                    <p>No tables available at the moment.</p>
+                </div>
+            ) : (
+                <div className="cp-table-grid">
+                    {availableTables.map((table) => (
+                        <div
+                            key={table.id}
+                            className={`cp-table-card ${bookingForm.tableId === table.id ? 'selected' : ''}`}
+                            onClick={() => setBookingForm({ ...bookingForm, tableId: table.id })}
+                        >
+                            <div className="cp-table-header">
+                                <h4>Table #{table.tableNumber}</h4>
+                                {bookingForm.tableId === table.id && <span className="cp-selected-check"></span>}
+                            </div>
+                            <div className="cp-table-info">
+                                <div className="cp-table-row">
+                                    <span>Type:</span>
+                                    <span>{table.category || 'Regular'}</span>
+                                </div>
+                                <div className="cp-table-row">
+                                    <span>Capacity:</span>
+                                    <span> {table.capacity} seats</span>
+                                </div>
+                            </div>
+                            <div className="cp-table-status available">✅ Available</div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {bookingForm.tableId && (
+                <div className="cp-next-section">
+                    <button className="cp-btn cp-btn-ghost" onClick={() => setActiveSection('menu')}>
+                         ⬅️ Back to Menu
+                    </button>
+                    <button className="cp-btn cp-btn-primary" onClick={() => setActiveSection('booking')}>
+                        ➡️ Next: Confirm Booking
+                    </button>
+                </div>
+            )}
+        </>
+    );
+
+    const renderBooking = () => (
+        <>
+            <div className="cp-toolbar">
+                <h3>✅ Booking Details & Confirmation</h3>
+            </div>
+
+            <form onSubmit={submitBooking} className="cp-booking-form">
+                <div className="cp-form-grid">
+                    <div className="cp-form-group">
+                        <label>📅 Date *</label>
+                        <input
+                            type="date"
+                            value={bookingForm.date}
+                            onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="cp-form-group">
+                        <label>⏰ Time *</label>
+                        <input
+                            type="time"
+                            value={bookingForm.time}
+                            onChange={(e) => setBookingForm({ ...bookingForm, time: e.target.value })}
+                            required
+                        />
+                    </div>
+
+                    <div className="cp-form-group">
+                        <label>⏳ Duration</label>
+                        <select
+                            value={bookingForm.duration}
+                            onChange={(e) => setBookingForm({ ...bookingForm, duration: e.target.value })}
+                        >
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="90">1.5 hours</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div className="cp-order-summary">
+                    <h3>🧾 Order Summary</h3>
+                    <div className="cp-summary-grid">
+                        <div className="cp-summary-section">
+                            <h4>🍽️ Menu Items ({cartItems.length})</h4>
+                            {cartItems.length === 0 ? (
+                                <p className="cp-no-items">No items selected</p>
+                            ) : (
+                                <ul className="cp-summary-items">
+                                    {cartItems.map((item) => (
+                                        <li key={item.id}>
+                                            <span>{item.name} x{selectedItems[item.id]}</span>
+                                            <span>INR {item.price * selectedItems[item.id]}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        <div className="cp-summary-section">
+                            <h4>🪑 Table Details</h4>
+                            {!bookingForm.tableId ? (
+                                <p className="cp-no-items">No table selected</p>
+                            ) : (
+                                <div className="cp-table-details">
+                                    <p><strong>Table:</strong> #{selectedTable?.tableNumber}</p>
+                                    <p><strong>Type:</strong> {selectedTable?.category}</p>
+                                    <p><strong>Capacity:</strong> {selectedTable?.capacity} seats</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="cp-summary-section">
+                            <h4>📅 Booking Info</h4>
+                            {!bookingForm.date || !bookingForm.time ? (
+                                <p className="cp-no-items">Select date and time</p>
+                            ) : (
+                                <div className="cp-booking-details">
+                                    <p><strong>Date:</strong> {new Date(bookingForm.date).toLocaleDateString()}</p>
+                                    <p><strong>Time:</strong> {bookingForm.time}</p>
+                                    <p><strong>Duration:</strong> {bookingForm.duration} minutes</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="cp-total-section">
+                        <div className="cp-total-row">
+                            <span>Total Amount:</span>
+                            <span className="cp-final-total">INR {cartTotal}</span>
+                        </div>
+                    </div>
+
+                    <div className="cp-action-buttons">
+                        <button
+                            type="button"
+                            className="cp-btn cp-btn-ghost"
+                            onClick={() => setActiveSection('tables')}
+                        >
+                             ⬅️ Back to Tables
+                        </button>
+                        <button
+                            type="submit"
+                            className="cp-btn cp-btn-book"
+                            disabled={isPaying || cartItems.length === 0 || !bookingForm.tableId || !bookingForm.date || !bookingForm.time}
+                        >
+                            {isPaying
+                                ? '⏳ Processing payment...'
+                                : (cartItems.length === 0 || !bookingForm.tableId || !bookingForm.date || !bookingForm.time
+                                    ? 'Complete Selection'
+                                    : `💳 Pay and Confirm - INR ${cartTotal}`)}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </>
+    );
+
+    const renderContent = () => {
+        switch (activeSection) {
+            case 'menu': return renderMenu();
+            case 'tables': return renderTables();
+            case 'booking': return renderBooking();
+            default: return renderMenu();
+        }
+    };
+
+    return (
+        <div className="cafe-page-container">
+            {/* Sidebar overlay for mobile */}
+            <div className={`cp-sidebar-overlay ${sidebarOpen ? 'show' : ''}`} onClick={() => setSidebarOpen(false)} />
+
+            {/* Left Sidebar */}
+            <aside className={`cp-sidebar ${sidebarOpen ? 'open' : ''}`}>
+                <div className="cp-sidebar-header">
+                    <div className="cp-sidebar-brand">
+                        <span className="cp-brand-icon">☕</span>
+                        <div>
+                            <strong>{details.name}</strong>
+                            <small>
+                                {[details.city, details.state].filter(Boolean).join(', ') || ''}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="cp-cart-preview">
+                    <h4>🛒 Your Cart</h4>
+                    <div className="cp-cart-stats">
+                        <div className="cp-cart-stat">
+                            <span className="cp-stat-label">Items</span>
+                            <span className="cp-stat-value">{cartItems.length}</span>
+                        </div>
+                        <div className="cp-cart-stat">
+                            <span className="cp-stat-label">Total</span>
+                            <span className="cp-stat-value">INR {cartTotal}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav className="cp-sidebar-nav">
+                    {menuItems.map(item => (
+                        <button
+                            key={item.key}
+                            className={`cp-nav-item ${activeSection === item.key ? 'active' : ''}`}
+                            onClick={() => { setActiveSection(item.key); setSidebarOpen(false); }}
+                        >
+                            <span className="cp-nav-icon">{item.icon}</span>
+                            <span className="cp-nav-label">{item.label}</span>
+                        </button>
+                    ))}
+                </nav>
+
+                <div className="cp-sidebar-footer">
+                    <button className="cp-btn cp-btn-ghost cp-btn-block" onClick={() => navigate('/')}>
+                         ⬅️ Back to Cafes
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="cp-main-content">
+                <header className="cp-topbar">
+                    <div className="cp-topbar-left">
+                        <button className="cp-menu-toggle" onClick={() => setSidebarOpen(true)}></button>
+                        <h1>
+                            {(() => {
+                                const current = menuItems.find(m => m.key === activeSection);
+                                return current ? `${current.icon} ${current.label}` : '📋 Menu Selection';
+                            })()}
+                        </h1>
+                    </div>
+                    <div className="cp-topbar-right">
+                        <button className="cp-btn cp-btn-ghost" type="button" onClick={() => navigate('/')}>
+                            🏠 Home
+                        </button>
+                        <div className="cp-cart-badge">
+                             <span>{cartItems.length}</span>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="cp-content">
+                    {bookingMessage?.text && (
+                        <div className={`cp-flash ${bookingMessage.type || 'success'}`}>
+                            {bookingMessage.text}
                         </div>
                     )}
-                </article>
-
-                {/* MENU */}
-                <article className="panel">
-                    <h3>🍽️ Menu</h3>
-                    <div className="chips">
-                        {categories.map((category) => (
-                            <button
-                                type="button"
-                                key={category}
-                                className={`chip ${selectedCategory === category ? 'active' : ''}`}
-                                onClick={() => setSelectedCategory(category)}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
-                    {filteredMenu.length === 0 ? (
-                        <p className="muted">No items in this category.</p>
-                    ) : (
-                        <div className="menu-list">
-                            {filteredMenu.map((item) => (
-                                <div key={item.id} className="menu-item">
-                                    {item.imageUrl ? (
-                                        <img src={item.imageUrl} alt={item.name} />
-                                    ) : (
-                                        <div style={{ width: 90, height: 90, background: '#f5ede4', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5a5', fontSize: 30 }}>🖼️</div>
-                                    )}
-                                    <div>
-                                        <p className="type">{item.category}</p>
-                                        <h4>{item.name}</h4>
-                                        <p>{item.description}</p>
-                                        <div className="item-row">
-                                            <strong>₹{item.price}</strong>
-                                            <button type="button" onClick={() => addToCart(item)}>+ Add</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </article>
-
-                {/* ORDER CART */}
-                <article className="panel">
-                    <h3>🛒 Your Order {cartItems.length > 0 && `(${cartItems.reduce((s, i) => s + i.quantity, 0)})`}</h3>
-                    <div className="order-list">
-                        {cartItems.length === 0 ? (
-                            <p className="muted">No items added yet.<br />Browse the menu and tap "+ Add"</p>
-                        ) : (
-                            cartItems.map((item) => (
-                                <div className="order-row" key={item.id}>
-                                    <div>
-                                        <h4>{item.name}</h4>
-                                        <small>₹{item.price} each</small>
-                                    </div>
-                                    <div className="qty">
-                                        <button type="button" onClick={() => updateQty(item.id, -1)}>−</button>
-                                        <span>{item.quantity}</span>
-                                        <button type="button" onClick={() => updateQty(item.id, 1)}>+</button>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                    <div className="checkout">
-                        <p>Total: <strong>₹{cartTotal}</strong></p>
-                        <button type="button" onClick={placeOrder}>Place Order →</button>
-                        {checkoutMessage && <small>{checkoutMessage}</small>}
-                    </div>
-                </article>
-            </section>
+                    {renderContent()}
+                </div>
+            </main>
         </div>
     );
 };
 
 export default CafePage;
+

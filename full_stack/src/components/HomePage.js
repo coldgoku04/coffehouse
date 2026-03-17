@@ -7,6 +7,8 @@ import './HomePage.css';
 const HomePage = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const roleValue = (user?.role || localStorage.getItem('role') || '').toUpperCase();
+    const isCustomer = roleValue === 'CUSTOMER';
     const [cafes, setCafes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -57,7 +59,7 @@ const HomePage = () => {
             <header className="home-header">
                 <div className="header-inner">
                     <button type="button" className="brand" onClick={() => navigate('/')}>
-                        <span className="brand-icon">CB</span>
+                        <span className="brand-icon">☕</span>
                         <span>
                             <strong>Cafe Bridge</strong>
                             <small>Discover & book top cafes</small>
@@ -65,23 +67,32 @@ const HomePage = () => {
                     </button>
 
                     <nav className="main-nav">
-                        <a href="#cafes">Cafes</a>
-                        <a href="#how-it-works">How It Works</a>
-                        <a href="#contact">Contact</a>
+                        <a href="#cafes">☕ Cafes</a>
+                        <a href="#how-it-works">🧭 How It Works</a>
+                        <a href="#contact">✉️ Contact</a>
                     </nav>
 
                     <div className="header-cta">
                         {!user ? (
                             <>
-                                <button type="button" className="ghost" onClick={() => navigate('/signin')}>Sign In</button>
-                                <button type="button" className="primary" onClick={() => navigate('/register')}>Register</button>
+                                <button type="button" className="ghost" onClick={() => navigate('/signin')}>🔐 Sign In</button>
+                                <button type="button" className="primary" onClick={() => navigate('/register')}>📝 Register</button>
                             </>
                         ) : (
                             <>
                                 <button type="button" className="ghost" onClick={handleDashboardRoute}>
-                                    {user.role === 'CAFE_OWNER' ? '☕ Owner Dashboard' : user.role === 'ADMIN' ? '⚙️ Admin Panel' : '👤 My Profile'}
+                                    {user.role === 'CAFE_OWNER' ? '📊 Owner Dashboard' : user.role === 'ADMIN' ? '🛠️ Admin Panel' : '👤 My Profile'}
                                 </button>
-                                <button type="button" className="primary" onClick={handleLogout}>Logout</button>
+                                {isCustomer && (
+                                    <button
+                                        type="button"
+                                        className="ghost"
+                                        onClick={() => navigate('/customer/orders')}
+                                    >
+                                        Previous Orders
+                                    </button>
+                                )}
+                                <button type="button" className="primary" onClick={handleLogout}>🚪 Logout</button>
                             </>
                         )}
                     </div>
@@ -91,10 +102,10 @@ const HomePage = () => {
             <main className="home-main">
                 <section className="hero">
                     <div className="hero-content">
-                        <p className="eyebrow">One Platform. Many Cafes.</p>
-                        <h1>Reserve tables & order from your favorite local cafes.</h1>
+                        <p className="eyebrow">✨ One Platform. Many Cafes.</p>
+                        <h1><span className="emoji">☕️</span> Reserve tables & order from your favorite local cafes.</h1>
                         <p>
-                            Browse all available cafes, view their menus, select tables, and place orders — all from a single seamless experience.
+                            Browse all available cafes, view their menus, select tables, and place orders  all from a single seamless experience.
                         </p>
                         <div className="hero-search">
                             <input
@@ -104,7 +115,7 @@ const HomePage = () => {
                                 placeholder="Search by cafe name, city, or state..."
                             />
                             <button type="button" onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior: 'smooth' })}>
-                                Explore Cafes
+                                🔍 Explore Cafes
                             </button>
                         </div>
                     </div>
@@ -114,7 +125,7 @@ const HomePage = () => {
                             <span>Available Cafes</span>
                         </article>
                         <article>
-                            <strong>24×7</strong>
+                            <strong>247</strong>
                             <span>Online Access</span>
                         </article>
                         <article>
@@ -127,32 +138,39 @@ const HomePage = () => {
                 <section className="cafes-section" id="cafes">
                     <div className="section-head">
                         <div>
-                            <h2>Available Cafes</h2>
+                            <h2>🏪 Available Cafes</h2>
                             <p>Only verified and active cafes are listed below.</p>
                         </div>
                     </div>
 
                     {loading ? (
-                        <div className="state-panel">Loading cafes...</div>
+                        <div className="state-panel">⏳ Loading cafes...</div>
                     ) : error ? (
                         <div className="state-panel">{error}</div>
                     ) : filteredCafes.length === 0 ? (
-                        <div className="state-panel">No cafes match your search.</div>
+                        <div className="state-panel">😕 No cafes match your search.</div>
                     ) : (
                         <div className="cafe-grid">
                             {filteredCafes.map((cafe) => (
                                 <article key={cafe.id} className="cafe-card" onClick={() => navigate(`/cafes/${cafe.id}`)}>
-                                    <img
-                                        src={cafe.coverImageUrl || cafe.logoUrl || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400'}
-                                        alt={cafe.name}
-                                        loading="lazy"
-                                    />
+                                    <div className="cafe-card-image">
+                                        {(cafe.coverImageUrl || cafe.logoUrl) && (
+                                            <img
+                                                src={cafe.coverImageUrl || cafe.logoUrl}
+                                                alt={cafe.name}
+                                                loading="lazy"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
+                                            />
+                                        )}
+                                    </div>
                                     <div className="card-body">
                                         <h3>{cafe.name}</h3>
                                         <p>{cafe.city}, {cafe.state}</p>
                                         <small>{cafe.openHours || 'Open hours not updated'}</small>
                                         <button type="button" onClick={(e) => { e.stopPropagation(); navigate(`/cafes/${cafe.id}`); }}>
-                                            View Cafe →
+                                            📅 Book a Table
                                         </button>
                                     </div>
                                 </article>
@@ -164,17 +182,17 @@ const HomePage = () => {
                 <section className="how-it-works" id="how-it-works">
                     <article>
                         <span>1</span>
-                        <h4>Choose a Cafe</h4>
+                        <h4>☕ Choose a Cafe</h4>
                         <p>Browse and pick from verified cafes available on the platform.</p>
                     </article>
                     <article>
                         <span>2</span>
-                        <h4>Book a Table</h4>
+                        <h4>🪑 Book a Table</h4>
                         <p>Select your preferred table type, date, time, and duration.</p>
                     </article>
                     <article>
                         <span>3</span>
-                        <h4>Place Orders</h4>
+                        <h4>🍽️ Place Orders</h4>
                         <p>Browse the menu and add items to your order instantly.</p>
                     </article>
                 </section>
@@ -183,8 +201,8 @@ const HomePage = () => {
             <footer className="home-footer" id="contact">
                 <div className="footer-grid">
                     <div>
-                        <h5>Cafe Bridge</h5>
-                        <p>Central marketplace connecting customers with local cafe owners. Discover, book, and order — all in one place.</p>
+                        <h5>☕ Cafe Bridge</h5>
+                        <p>Central marketplace connecting customers with local cafe owners. Discover, book, and order  all in one place.</p>
                     </div>
                     <div>
                         <h5>Customer</h5>
@@ -203,7 +221,7 @@ const HomePage = () => {
                         <a href="/profile">My Profile</a>
                     </div>
                 </div>
-                <p className="copyright">© 2026 Cafe Bridge. All rights reserved.</p>
+                <p className="copyright"> 2026 Cafe Bridge. All rights reserved.</p>
             </footer>
         </div>
     );

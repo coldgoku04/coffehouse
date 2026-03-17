@@ -61,6 +61,21 @@ const ApprovalCard = ({ rowUser, busy, onApprove, onReject }) => {
             </div>
 
             <div className="approval-card-body">
+                <div className="approval-id-row">
+                    <span className="approval-id-label">Gov ID:</span>
+                    <span className="approval-id-type">{rowUser.govIdType || 'N/A'}</span>
+                    {rowUser.govIdFileUrl ? (
+                        <button
+                            type="button"
+                            className="id-view-btn"
+                            onClick={() => window.open(apiUrl(rowUser.govIdFileUrl), '_blank', 'noopener')}
+                        >
+                            View ID
+                        </button>
+                    ) : (
+                        <span className="id-missing">No file</span>
+                    )}
+                </div>
                 <div className="approval-action-row">
                     <button
                         className="approve-btn"
@@ -242,15 +257,15 @@ const AdminDashboard = () => {
                 <div className="profile-box">
                     <div className="profile-avatar">A</div>
                     <div className="profile-name">{user?.firstName || 'Admin'} {user?.lastName || ''}</div>
-                    <div className="profile-role">Cafe Admin</div>
+                    <div className="profile-role">☕ Cafe Admin</div>
                 </div>
 
-                <div className="menu-section">Navigation</div>
+                <div className="menu-section">🧭 Navigation</div>
                 <nav className="joli-nav">
-                    <a className="active" href="#dashboard">Dashboard</a>
-                    <a href="#approvals">Approvals</a>
-                    <Link to="/profile">Profile</Link>
-                    <Link to="/change-password">Change Password</Link>
+                    <a className="active" href="#dashboard">📊 Dashboard</a>
+                    <a href="#approvals">✅ Approvals</a>
+                    <Link to="/profile">👤 Profile</Link>
+                    <Link to="/change-password">🔑 Change Password</Link>
                 </nav>
             </aside>
 
@@ -261,14 +276,14 @@ const AdminDashboard = () => {
                         <div className="search-box">Search...</div>
                     </div>
                     <div className="right-tools">
-                        <Link to="/">Home</Link>
+                        <Link to="/">🏠 Home</Link>
                         <span>{user?.email || 'admin@coffeeconnect.com'}</span>
-                        <button type="button" onClick={handleLogout}>Logout</button>
+                        <button type="button" onClick={handleLogout}>🚪 Logout</button>
                     </div>
                 </header>
 
                 <div className="breadcrumb">Home / Dashboard / Widgets</div>
-                <h1 className="page-title">Widgets</h1>
+                <h1 className="page-title">🧩 Widgets</h1>
 
                 <section className="widget-grid">
                     {widgets.map((widget) => {
@@ -296,7 +311,7 @@ const AdminDashboard = () => {
 
                 <section className="approvals-panel" id="approvals">
                     <div className="approvals-head">
-                        <h2>Registered Users For Approval</h2>
+                        <h2>✅ Registered Users For Approval</h2>
                         <span>{pendingUsers.length} pending</span>
                     </div>
 
@@ -324,4 +339,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

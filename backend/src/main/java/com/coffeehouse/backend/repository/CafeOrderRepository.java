@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CafeOrderRepository extends MongoRepository<CafeOrder, String> {
     List<CafeOrder> findByCafeId(String cafeId);
+    List<CafeOrder> findByCafeIdAndTableId(String cafeId, String tableId);
+    List<CafeOrder> findByCustomerId(String customerId);
 }

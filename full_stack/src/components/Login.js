@@ -44,12 +44,12 @@ const Login = () => {
 
     return (
         <div>
-            <h2>Login</h2>
+            <h2>🔐 Login</h2>
             {error && <div style={{color: "red"}}>{error}</div>}
             <form onSubmit={handleSubmit}>
                 <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" />
                 <input value={password} type="password" onChange={e => setPassword(e.target.value)} placeholder="Password" />
-                <button type="submit">Login</button>
+                <button type="submit">🔓 Login</button>
             </form>
         </div>
     );

@@ -9,5 +9,10 @@ import java.util.List;
 public class CreateCafeOrderRequest {
     private String tableId;
     private String tableNumber;
+    private String customerId;
+    private String customerName;
+    private String bookingDateTime;
+    private Integer durationMinutes;
+    private String specialRequests;
     private List<CafeOrderItem> items;
 }

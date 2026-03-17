@@ -241,6 +241,9 @@ public class AuthController {
         response.setLastName(user.getLastName());
         response.setRole(user.getRole());
         response.setStatus(user.getStatus());
+        response.setGovIdType(user.getGovIdType());
+        response.setGovIdFileName(user.getGovIdFileName());
+        response.setGovIdFileUrl(user.getGovIdFileUrl());
         return response;
     }
 }

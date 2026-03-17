@@ -20,15 +20,21 @@ public class CafeOrder {
 
     private String tableId;
     private String tableNumber;
+    private String customerId;
+    private String customerName;
+    private LocalDateTime bookingDateTime;
+    private Integer durationMinutes;
+    private String specialRequests;
     private List<CafeOrderItem> items;
     private Double totalAmount;
-    private String status; // PLACED, PREPARING, READY, SERVED
+    private String status; // PLACED, ACCEPTED, COOKING, READY, SERVING, SERVED, COMPLETED, CANCELLED, REJECTED
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public CafeOrder() {
         this.items = new ArrayList<>();
         this.status = "PLACED";
+        this.durationMinutes = 60;
         this.totalAmount = 0.0;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();

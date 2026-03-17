@@ -11,4 +11,7 @@ public class PendingUserResponse {
     private String lastName;
     private String role;
     private String status;
+    private String govIdType;
+    private String govIdFileName;
+    private String govIdFileUrl;
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+﻿import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -23,6 +23,9 @@ export const AuthProvider = ({ children }) => {
         if (userData?.role) {
             localStorage.setItem("role", userData.role);
         }
+        if (userData?.cafeId) {
+            localStorage.setItem("cafeId", userData.cafeId);
+        }
     };
 
     const logout = () => {
@@ -31,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("role");
+        localStorage.removeItem("cafeId");
     };
 
     return (

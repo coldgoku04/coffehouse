@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -55,12 +59,22 @@ public class RegistrationController {
             username = baseUsername + counter++;
         }
 
-        // Simulate govId file upload storage (store file name; real implementation would upload to S3 or similar)
+        // Save govId file locally (simple storage)
         String govIdFileName = null;
         String govIdFileUrl = null;
         if (file != null && !file.isEmpty()) {
             govIdFileName = file.getOriginalFilename();
-            govIdFileUrl = "/uploads/govids/" + UUID.randomUUID() + "_" + govIdFileName; // Just a path for now
+            String safeName = (govIdFileName == null ? "gov_id" : govIdFileName).replaceAll("[^a-zA-Z0-9._-]", "_");
+            String storedName = UUID.randomUUID() + "_" + safeName;
+            try {
+                Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads", "govids");
+                Files.createDirectories(uploadDir);
+                Path target = uploadDir.resolve(storedName);
+                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+                govIdFileUrl = "/uploads/govids/" + storedName;
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().body("Failed to store government ID file.");
+            }
         }
 
         User user = new User();
